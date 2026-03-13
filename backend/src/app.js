@@ -1,0 +1,35 @@
+const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+const app = express();
+
+const contactRoutes = require('./routes/contactRoutes');
+const authRoutes = require('./routes/authRoutes');
+const reportRoutes = require('./routes/reportRoutes');
+const chatbotRoutes = require('./routes/chatbotRoutes');
+const actionPlanRoutes = require('./routes/actionPlanRoutes');
+
+app.use(cors());
+app.use(express.json());
+app.use('/uploads', express.static('uploads'));
+
+// Routes
+app.use('/api/contacts', contactRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/action-plans', actionPlanRoutes);
+
+// Basic Route
+app.get('/', (req, res) => {
+    res.send('CareLink Backend API is running...');
+});
+
+// Port Settings
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
