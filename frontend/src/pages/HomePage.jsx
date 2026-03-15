@@ -230,15 +230,13 @@ export default function HomePage() {
                 <Heart className="w-10 h-10 fill-current" />
                 CareLink
               </div>
-              <div className="flex flex-wrap gap-8 text-slate-600 font-bold mb-8">
-                <a href="#" className="hover:text-teal-600 transition-colors">이용약관</a>
-                <a href="#" className="hover:text-teal-600 transition-colors">개인정보처리방침</a>
-              </div>
               <div className="space-y-4 text-slate-500 text-sm font-medium">
                 <p>(주)케어링크 헬스케어 서비스</p>
                 <p>서울특별시 디지털밸리 헬스이노베이션로 123</p>
                 <p>전화: 02-1234-5678 | 이메일: support@carelink.health</p>
               </div>
+              <Link to="/policy" className="hover:text-teal-600 transition-colors">이용약관</Link>
+              <Link to="/policy" className="hover:text-teal-600 transition-colors ml-4">개인정보처리방침</Link>
             </div>
             <div>
               <h3 className="text-2xl font-extrabold mb-8 text-slate-900">문의하기</h3>
