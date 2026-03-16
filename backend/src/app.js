@@ -13,8 +13,23 @@ const chatbotRoutes = require('./routes/chatbotRoutes');
 const actionPlanRoutes = require('./routes/actionPlanRoutes');
 
 app.use(cors());
-app.use(express.json({ strict: false })); // More lenient JSON parsing
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serverless Body Parser Fix
+app.use((req, res, next) => {
+    if (!req.body || Object.keys(req.body).length === 0) {
+        if (req.rawBody) {
+            try {
+                req.body = JSON.parse(req.rawBody.toString());
+            } catch (e) {
+                // Ignore
+            }
+        }
+    }
+    next();
+});
+
 app.use('/uploads', express.static('uploads'));
 
 // API Router
