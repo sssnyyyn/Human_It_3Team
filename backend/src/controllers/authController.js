@@ -65,7 +65,8 @@ exports.verifyOTP = async (req, res) => {
 };
 
 exports.signup = async (req, res) => {
-    const { email, password, name, birth_date, gender } = req.body;
+    const { password, name, birth_date, gender } = req.body;
+    const email = req.body.email ? req.body.email.trim() : '';
     
     if (!email || !password || !name || !birth_date || !gender) {
         return res.status(400).json({ success: false, message: '모든 항목을 입력해주세요.' });
@@ -93,11 +94,12 @@ exports.signup = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-    const { email, password } = req.body;
+    const { password } = req.body;
+    const email = req.body.email ? req.body.email.trim() : '';
 
     try {
-        // Use LOWER() for case-insensitive email search in PostgreSQL
-        const [users] = await pool.query('SELECT * FROM users WHERE LOWER(email) = LOWER(?)', [email]);
+        // Use EXACT same logic as debug route
+        const [users] = await pool.query('SELECT * FROM users WHERE LOWER(email) = LOWER($1)', [email]);
         
         if (users.length === 0) {
             return res.status(400).json({ success: false, message: '가입되지 않은 이메일입니다.' });
