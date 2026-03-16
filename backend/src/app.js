@@ -16,35 +16,45 @@ app.use(cors());
 app.use(express.json({ type: '*/*' })); // Try parsing everything as JSON
 app.use(express.urlencoded({ extended: true }));
 
-// Serverless Body Parser Fix
 app.use((req, res, next) => {
-    // 1. Check if serverless event body is available but req.body is not
-    if ((!req.body || Object.keys(req.body).length === 0) && req.apiGateway && req.apiGateway.event && req.apiGateway.event.body) {
+    // 1. Handle if req.body is already a Buffer
+    if (Buffer.isBuffer(req.body)) {
         try {
-            let eventBody = req.apiGateway.event.body;
-            if (req.apiGateway.event.isBase64Encoded) {
-                eventBody = Buffer.from(eventBody, 'base64').toString('utf8');
-            }
-            req.body = JSON.parse(eventBody);
-        } catch (e) {
-            // Not JSON
-        }
+            req.body = JSON.parse(req.body.toString('utf8'));
+        } catch (e) {}
     }
 
-    // 2. Handle indexed objects (e.g., { 0: '{', 1: '"', ... })
+    // 2. Heavy-duty reconstruction for serverless indexed bodies
     const keys = Object.keys(req.body || {});
     const isIndexed = keys.length > 0 && keys.every(key => !isNaN(key));
 
     if (isIndexed && req.body[0] !== undefined) {
         try {
-            const reconstructed = Object.values(req.body).join('');
+            let reconstructed = '';
+            // Check if it's byte numbers (e.g., 123, 34) or characters (e.g., '{', '"')
+            if (typeof req.body[0] === 'number') {
+                reconstructed = Buffer.from(Object.values(req.body)).toString('utf8');
+            } else {
+                reconstructed = Object.values(req.body).join('');
+            }
             req.body = JSON.parse(reconstructed);
         } catch (e) {
-            // Fail silently, maybe it's not JSON
+            // If parsing fails, it might not be JSON, leave as is
         }
     }
 
-    // 3. Fallback for string body
+    // 3. Last fallback: Check Netlify/AWS raw event
+    if ((!req.body || Object.keys(req.body).length === 0 || typeof req.body === 'number') && req.apiGateway && req.apiGateway.event) {
+        try {
+            let eventBody = req.apiGateway.event.body;
+            if (req.apiGateway.event.isBase64Encoded) {
+                eventBody = Buffer.from(eventBody, 'base64').toString('utf8');
+            }
+            if (eventBody) req.body = JSON.parse(eventBody);
+        } catch (e) {}
+    }
+
+    // 4. Force string-to-json if it ended up as a string
     if (typeof req.body === 'string') {
         try {
             req.body = JSON.parse(req.body);
