@@ -94,8 +94,6 @@ exports.signup = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-    console.log('Login attempt body:', JSON.stringify(req.body));
-    
     const { password } = req.body;
     const email = req.body.email ? String(req.body.email).trim().toLowerCase() : '';
 

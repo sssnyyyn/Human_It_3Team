@@ -16,8 +16,11 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
     setLoading(true);
+
+    const loginPayload = { email: email.trim().toLowerCase(), password };
+    
     try {
-      const res = await api.post('/auth/login', { email, password });
+      const res = await api.post('/auth/login', loginPayload);
       if (res.data.success) {
         login(res.data.token, res.data.user);
         navigate('/mypage');

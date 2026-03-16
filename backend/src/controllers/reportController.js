@@ -20,7 +20,7 @@ exports.uploadReport = async (req, res) => {
 
         // 2. AI Analysis
         const analysisResults = await geminiService.analyzeHealthReport(
-            req.file.path,
+            req.file.path || req.file.buffer, // Support both disk and memory storage
             req.file.mimetype,
             { age, gender: user.gender }
         );

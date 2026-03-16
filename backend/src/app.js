@@ -19,12 +19,16 @@ app.use(express.urlencoded({ extended: true }));
 // Serverless Body Parser Fix
 app.use((req, res, next) => {
     // 1. Handle indexed objects (e.g., { 0: '{', 1: '"', ... })
-    if (req.body && !req.body.email && req.body[0] !== undefined) {
+    // Detect if keys are only numbers (telltale sign of fragmented body)
+    const keys = Object.keys(req.body || {});
+    const isIndexed = keys.length > 0 && keys.every(key => !isNaN(key));
+
+    if (isIndexed && req.body[0] !== undefined) {
         try {
             const rawBody = Object.values(req.body).join('');
             req.body = JSON.parse(rawBody);
         } catch (e) {
-            console.error('Failed to parse reconstructed body:', e.message);
+            // Re-parsing error handled elsewhere
         }
     }
 
