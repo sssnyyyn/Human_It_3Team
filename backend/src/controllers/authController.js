@@ -96,9 +96,15 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
-        if (users.length === 0 || !users[0].email_verified) {
-            return res.status(400).json({ success: false, message: '이메일 또는 비밀번호가 틀렸거나 인증되지 않은 계정입니다.' });
+        // Use LOWER() for case-insensitive email search in PostgreSQL
+        const [users] = await pool.query('SELECT * FROM users WHERE LOWER(email) = LOWER(?)', [email]);
+        
+        if (users.length === 0) {
+            return res.status(400).json({ success: false, message: '가입되지 않은 이메일입니다.' });
+        }
+
+        if (!users[0].email_verified) {
+            return res.status(400).json({ success: false, message: '이메일 인증이 완료되지 않은 계정입니다.' });
         }
 
         const user = users[0];
