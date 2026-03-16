@@ -232,7 +232,7 @@ export default function HomePage() {
               </div>
               <div className="space-y-4 text-slate-500 text-sm font-medium">
                 <p>(주)케어링크 헬스케어 서비스</p>
-                <p>서울특별시 디지털밸리 헬스이노베이션로 123</p>
+                <p>경기 수원시 팔달구 중부대로 100 4층</p>
                 <p>전화: 02-1234-5678 | 이메일: support@carelink.health</p>
               </div>
               </div>
