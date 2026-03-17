@@ -1,5 +1,7 @@
 import express from "express";
-import { createServer as createViteServer } from "vite";
+import { createServer as createViteServer, loadEnv } from "vite";
+import tailwindcss from '@tailwindcss/vite';
+import react from '@vitejs/plugin-react';
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -39,14 +41,25 @@ async function startServer() {
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
+    const env = loadEnv(process.env.NODE_ENV || 'development', __dirname, '');
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: { middlewareMode: true, hmr: process.env.DISABLE_HMR !== 'true' },
       appType: "spa",
-      root: path.join(process.cwd(), "frontend"),
+      configFile: false,
+      plugins: [react(), tailwindcss()],
+      define: {
+        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+      },
+      resolve: {
+        alias: {
+          '@': __dirname,
+        },
+      },
+      root: __dirname,
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), "dist");
+    const distPath = path.join(__dirname, "dist");
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
