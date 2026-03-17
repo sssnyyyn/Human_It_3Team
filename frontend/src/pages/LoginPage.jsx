@@ -171,8 +171,7 @@ export default function LoginPage() {
                         </p>
                     </div>
                 </div>
-            </div>
-        </motion.div>
-    </div>
-  );
+            </motion.div>
+        </div>
+    );
 }
