@@ -20,7 +20,14 @@ app.use(cors({
 }));
 
 app.use(cookieParser());
-app.use(express.json({ type: '*/*' })); // Try parsing everything as JSON
+// express.json 및 express.urlencoded
+// 단, multipart/form-data 는 multer 에 맡기기 위해 예외 처리
+app.use((req, res, next) => {
+    if (req.headers['content-type'] && req.headers['content-type'].startsWith('multipart/form-data')) {
+        return next();
+    }
+    express.json({ type: '*/*' })(req, res, next);
+});
 app.use(express.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
